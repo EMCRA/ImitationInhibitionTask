@@ -45,7 +45,7 @@
 	
 	function my_keydown(e){
 		my_key = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(e.key) || e.keyCode;
-		if(keys_down[my_key] != true){ // to prevent constant updating (not sure if necessary; might also want to remove listener if both are down and add again when up)
+		if(keys_down[my_key] != true){ // prevents constant updating (not sure if necessary)
 			keys_down[my_key] = true;
 		}
 	};
