@@ -14,4 +14,5 @@ JsPsych code to run the imitation-inhibition task online. Supports key releases 
 ## Contact
 
 Emiel Cracco
+
 emiel.cracco@ugent.be
