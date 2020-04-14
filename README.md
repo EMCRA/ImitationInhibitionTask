@@ -1,4 +1,4 @@
-# Online Verion of the Imitation-Inhibition Task
+# Online Version of the Imitation-Inhibition Task
 
 ## Description
 
