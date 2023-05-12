@@ -1,10 +1,11 @@
 /**
  * jspsych-check-response
  * Josh de Leeuw
+ * modified by Emiel Cracco
  *
- * plugin for displaying a stimulus and getting a keyboard response
+ * plugin for checking a keyboard response
  *
- * documentation: docs.jspsych.org
+ * documentation: docs.jspsych.org and https://osf.io/q7fju/
  *
  **/
 
