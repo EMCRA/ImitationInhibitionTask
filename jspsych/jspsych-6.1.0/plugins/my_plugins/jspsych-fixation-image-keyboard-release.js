@@ -1,10 +1,11 @@
 /**
  * jspsych-fixation-image-keyboard-release
  * Josh de Leeuw
+ * modified by Emiel Cracco
  *
- * plugin for displaying a stimulus and getting a keyboard response
+ * plugin for displaying a fixation stimulus, then a stimulus and getting a keyboard response to the stimulus
  *
- * documentation: docs.jspsych.org
+ * documentation: docs.jspsych.org and https://osf.io/q7fju/
  *
  **/
 
@@ -90,20 +91,16 @@ jsPsych.plugins["fixation-image-keyboard-release"] = (function() {
   }
 
   plugin.trial = function(display_element, trial) {
-	
-		// store response
-	
+
+    // store response
     var response = {
       rt: null,
       key: null
-    };		
-		
-		// display fixation
-		
-			// load
-	
-		var html = '<img src="'+trial.fixation+'" id="jspsych-fixation-image-keyboard-release-stimulus" style="';
-		
+    };
+
+    // display fixation
+    // load
+    var html = '<img src="'+trial.fixation+'" id="jspsych-fixation-image-keyboard-release-stimulus" style="';
     if(trial.stimulus_height !== null){
       html += 'height:'+trial.stimulus_height+'px; '
       if(trial.stimulus_width == null && trial.maintain_aspect_ratio){
@@ -115,117 +112,100 @@ jsPsych.plugins["fixation-image-keyboard-release"] = (function() {
       if(trial.stimulus_height == null && trial.maintain_aspect_ratio){
         html += 'height: auto; ';
       }
-    }	
-    html +='"></img>';	
+    }
+    html +='"></img>';
 
-			// add prompt
-		
+    // add prompt
     if (trial.prompt !== null){
       html += trial.prompt;
     }
 
-			// render
-		
+    // render
     display_element.innerHTML = html;
-		  
+
     // display stimulus
-	
-		jsPsych.pluginAPI.setTimeout( 
-			function() {
-			
-				// render
-			
-				document.getElementById("jspsych-fixation-image-keyboard-release-stimulus").src = trial.stimulus;
-				
-				// function to end trial when it is time
-			
-				var end_trial = function() {
+    jsPsych.pluginAPI.setTimeout( 
+      function() {
 
-					// kill any remaining setTimeout handlers
-					
-					jsPsych.pluginAPI.clearAllTimeouts();
+        // render
+        document.getElementById("jspsych-fixation-image-keyboard-release-stimulus").src = trial.stimulus;
 
-					// kill keyboard listeners
-					
-					document.removeEventListener("keyup", my_response, false);
+        // function to end trial when it is time
+        var end_trial = function() {
 
-					// gather the data to store for the trial
-					
-					var trial_data = {
-						"rt": response.rt,
-						"stimulus": trial.stimulus,
-						"key_press": response.key
-					};
+          // kill any remaining setTimeout handlers
+          jsPsych.pluginAPI.clearAllTimeouts();
 
-					// clear the display
-					
-					display_element.innerHTML = '';
+          // kill keyboard listeners
+          document.removeEventListener("keyup", my_response, false);
 
-					// move on to the next trial
-					
-					jsPsych.finishTrial(trial_data);
-				};
+          // gather the data to store for the trial
+          var trial_data = {
+            "rt": response.rt,
+            "stimulus": trial.stimulus,
+            "key_press": response.key
+          };
 
-				// function to handle responses by the subject
-				
-				var after_response = function(info) {
+          // clear the display
+          display_element.innerHTML = '';
 
-					// after a valid response, the stimulus will have the CSS class 'responded'
-					// which can be used to provide visual feedback that a response was recorded
-					
-					display_element.querySelector('#jspsych-fixation-image-keyboard-release-stimulus').className += ' responded';
+          // move on to the next trial
+          jsPsych.finishTrial(trial_data);
+        };
 
-					// only record the first response
-					
-					if (response.key == null) {
-						response = info;
-					}
+        // function to handle responses by the subject
+        var after_response = function(info) {
 
-					if (trial.response_ends_trial) {
-						end_trial();
-					}
-				};
-				
-				// reponse detection function
-				// NOTE: keyCode is deprecated --> change to e.key or e.code (https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode)
-				// NOTE: probably best to do both (https://medium.com/@uistephen/keyboardevent-key-for-cross-browser-key-press-check-61dbad0a067a)
-			
-				function my_response(e){
-					my_key = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(e.key) || e.keyCode; 
-					for(var i=0; i < trial.choices.length; i++){						
-						if(my_key == trial.choices[i]){
-							var key_time = performance.now(); // console.log(key_time - start_time);
-							after_response({
-								key: my_key,
-								rt: key_time - start_time
-							});
-							break;
-						}		  
-					}
-				};
-					
-				// wait for response
-				
-				var start_time = performance.now();
-				document.addEventListener("keyup", my_response, false);
-				
-				// hide stimulus if stimulus_duration is set
-		
-				if (trial.stimulus_duration !== null) {
-					jsPsych.pluginAPI.setTimeout(function() {
-						display_element.querySelector('#jspsych-fixation-image-keyboard-release-stimulus').style.visibility = 'hidden';		
-					}, trial.stimulus_duration);
-				}
-			
-				// end trial if trial_duration is set
-				
-				if (trial.trial_duration !== null) {
-					jsPsych.pluginAPI.setTimeout(function() {
-						end_trial();
-					}, trial.trial_duration);
-				}
-			},trial.fixation_duration
-		)
-	}	
+          // after a valid response, the stimulus will have the CSS class 'responded'
+          // which can be used to provide visual feedback that a response was recorded
+          display_element.querySelector('#jspsych-fixation-image-keyboard-release-stimulus').className += ' responded';
+
+          // only record the first response
+          if (response.key == null) {
+            response = info;
+          }
+          if (trial.response_ends_trial) {
+            end_trial();
+          }
+        };
+
+        // reponse detection function
+        // NOTE: keyCode is deprecated --> change to e.key or e.code (https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode)
+        // NOTE: probably best to do both (https://medium.com/@uistephen/keyboardevent-key-for-cross-browser-key-press-check-61dbad0a067a)
+        function my_response(e){
+          my_key = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(e.key) || e.keyCode;
+          for(var i=0; i < trial.choices.length; i++){
+            if(my_key == trial.choices[i]){
+              var key_time = performance.now(); // console.log(key_time - start_time);
+              after_response({
+                key: my_key,
+                rt: key_time - start_time
+              });
+              break;
+            }
+          }
+        };
+
+        // wait for response
+        var start_time = performance.now();
+        document.addEventListener("keyup", my_response, false);
+
+        // hide stimulus if stimulus_duration is set
+        if (trial.stimulus_duration !== null) {
+          jsPsych.pluginAPI.setTimeout(function() {
+            display_element.querySelector('#jspsych-fixation-image-keyboard-release-stimulus').style.visibility = 'hidden';
+          }, trial.stimulus_duration);
+        }
+
+        // end trial if trial_duration is set
+        if (trial.trial_duration !== null) {
+          jsPsych.pluginAPI.setTimeout(function() {
+            end_trial();
+          }, trial.trial_duration);
+        }
+      },trial.fixation_duration
+    )
+  }
+
   return plugin;
 })();
